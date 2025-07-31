@@ -17,5 +17,7 @@ public class MovieImage {
   private String imgName;
   private String path;
   @ManyToOne(fetch = FetchType.LAZY)
+//  @Setter
   private Movie movie;
+  private boolean present;
 }

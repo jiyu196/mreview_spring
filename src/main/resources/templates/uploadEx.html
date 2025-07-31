@@ -6,14 +6,38 @@
         content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Document</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" th:href="@{/css/styles.css}" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.11.0/axios.min.js" integrity="sha512-h9644v03pHqrIHThkvXhB2PJ8zf5E9IyVnrSfZg8Yj8k4RsO4zldcQc4Bi9iVLUCCsqNY0b4WXVV4UB+wbWENA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 <body>
   <input type="file" name="files" multiple>
   <button id="btnUpload" class="btn-upload">Upload</button>
 
+  <ul class="uploadResult">
+
+  </ul>
+
+
 <script>
   const btnUpload = document.querySelector("#btnUpload");
+
+  window.onload = _ => {
+    document.querySelector('.uploadResult').addEventListener('click', (event) => {
+      if(event.target.matches('button,button i')) {
+        event.target.closest('li').remove();
+      }
+    })
+  };
+
+  // window.addEventListener("load", (event) => {
+  //   document.querySelector('.uploadResult').addEventListener('click', (event) => {
+  //     if(event.target.matches('button,button i')) {
+  //       event.target.closest('li').remove();
+  //     }
+  //   })
+  // });
+
   btnUpload.addEventListener('click', (event) => {
     event.preventDefault();
     const formData = new FormData();
@@ -27,13 +51,33 @@
     console.log(axios);
 
     (async () => {
-     const resp = await axios.post('/uploadAjax', formData, {
+    try {
+      const resp = await axios.post('/uploadAjax', formData, {
         headers: {
           'content-type': 'multipart/form-data'
         }
       });
-       console.log("업로드 완료")
-       console.log(resp)
+      console.log("업로드 완료")
+      console.log(resp.data)  // 여기까지가 성공원하는
+      document.querySelector(".uploadResult").innerHTML += resp.data.map(ele => {
+        return `<li><img src="/display${ele.thumb}" alt="${ele.origin}"><button class="btn"><i class="fa-solid fa-x"></i></button></li>`;  /*이게 문자열로 만드는*/
+      }).join("");
+
+      } catch (error) {
+        console.log(error);
+        if(error.response) {
+        const status = error.response.status;
+          if(status === 400) {
+            alert(error.response.data);
+          }
+          else if (status === 500) {
+            alert("서버 오류가 발생했습니다")
+          }
+        }
+        else {
+          alert("알수없는 오류");
+        }
+      }
     })();
   })
 </script>
