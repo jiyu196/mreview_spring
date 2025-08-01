@@ -14,7 +14,7 @@ import java.util.Map;
 public sealed interface MovieService permits MovieServiceImpl{
   Long register(MovieDTO dto);
   PageResponseDTO<MovieDTO, Object[]> getList(PageRequestDTO dto);
-
+  MovieDTO get(Long mno);
 
   default Map<String, Object> toEntity(MovieDTO dto) {
     Map<String, Object> map = new HashMap<>();
@@ -22,11 +22,11 @@ public sealed interface MovieService permits MovieServiceImpl{
     map.put("movie",Movie.builder().title(dto.getTitle()).mno(dto.getMno()).build());
     map.put("images", dto.getList().stream().map( m ->
             MovieImage.builder()
-              .movie(movie)
-              .uuid(m.getUuid())
-              .path(m.getPath())
-              .imgName(m.getOrigin())
-              .build()
+                    .movie(movie)
+                    .uuid(m.getUuid())
+                    .path(m.getPath())
+                    .imgName(m.getOrigin())
+                    .build()
     ).toList()); // 이렇게 타입을 바꾸는거.
     return map;
   }
@@ -38,11 +38,11 @@ public sealed interface MovieService permits MovieServiceImpl{
             .regDate(movie.getRegDate())
             .modDate(movie.getModDate())
             .list(images.stream().map(i -> i == null? null : MovieImageDTO.builder()
-            .origin(i.getImgName())
+                            .origin(i.getImgName())
                             .uuid(i.getUuid())
                             .path(i.getPath())
                             .build())
-                            .toList())
+                    .toList())
             .avg(avg)
             .reviewCnt(reviewCnt)
             .build();

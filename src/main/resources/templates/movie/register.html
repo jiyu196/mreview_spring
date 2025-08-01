@@ -2,90 +2,93 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <th:block th:replace="~{/layout/index :: setContent(~{this::content})}">
   <th:block th:fragment="content">
-    <h1 class="my-3">Movie Resister Page</h1>
+
+    <h1 class="my-3">Movie Register Page</h1>
 
     <form th:action="@{/movie/register}" method="post" class="register-form">
+      <!--      <div class="form-group">-->
+      <!--        <label for="bno">bno</label>-->
+      <!--        &lt;!&ndash; gno → bno 변경 &ndash;&gt;-->
+      <!--        <input type="text" class="form-control" name="bno" id="bno" >-->
+      <!--      </div>-->
       <div class="form-group">
-        <label for="title">title</label>
-        <input type="text" class="form-control" id="title" name="title">
+        <label for="title">Title</label>
+        <input type="text" class="form-control" name="title" id="title">
       </div>
 
       <div class="form-group my-3">
         <label for="files">Image Files</label>
         <input type="file" class="form-control" id="files" multiple accept="image/*">
       </div>
-      <ul class="box my-3 uploadResult"></ul>
+      <ul class="box my-3 upload-list"></ul>
       <button type="submit" class="btn btn-primary">Submit</button>
+
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.11.0/axios.min.js"
+              integrity="sha512-h9644v03pHqrIHThkvXhB2PJ8zf5E9IyVnrSfZg8Yj8k4RsO4zldcQc4Bi9iVLUCCsqNY0b4WXVV4UB+wbWENA=="
+              crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+      <link rel="stylesheet" th:href="@{/css/styles.css}"/>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
     </form>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <link rex="stylesheet" th:href="@{/css/styles.css}" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.11.0/axios.min.js" integrity="sha512-h9644v03pHqrIHThkvXhB2PJ8zf5E9IyVnrSfZg8Yj8k4RsO4zldcQc4Bi9iVLUCCsqNY0b4WXVV4UB+wbWENA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
-      document.querySelector(".register-form").addEventListener("submit",function (event) {
+      document.querySelector(".register-form").addEventListener("submit",function (event){
         event.preventDefault();
-        event.target.innerHTML += [...document.querySelectorAll(".uploadResult li")].map(function (el, index) {
+        event.target.innerHTML += [...document.querySelectorAll(".upload-list li")].map(function (el, index){
           const obj = {...el.dataset};
+          console.log(obj)
           let str = "";
-          for(const x in obj) {
-            str += `<input type="hidden" name="list[${index}].${x}" value="${obj[x]}">`;
-          }  /*객체도, 배열도 전개로 써야함. */
+          for (const x in obj){
+            str +=`<input type="hidden" name="list[${index}].${x}" value="${obj[x]}">`;
+          }
           return str;
         }).join("")
         event.target.submit();
       })
 
-      const btnUpload = document.querySelector("#btnUpload");
-
-      window.onload = _ => {
-        document.querySelector('.uploadResult').addEventListener('click', (event) => {
-          if(event.target.matches('button,button i')) {
+      window.addEventListener("load", (event) => {
+        document.querySelector('.upload-list').addEventListener('click', (event) => {
+          if (event.target.matches('button,button i')){
             event.target.closest('li').remove();
           }
         })
-      };
-
-      // window.addEventListener("load", (event) => {
-      //   document.querySelector('.uploadResult').addEventListener('click', (event) => {
-      //     if(event.target.matches('button,button i')) {
-      //       event.target.closest('li').remove();
-      //     }
-      //   })
-      // });
+      });
 
       document.querySelector("#files").addEventListener('change', (event) => {
         event.preventDefault();
         const formData = new FormData();
 
         const files = event.target.files;
-        for(const file of files) {
+        for (const file of files) {
           console.log(file)
-          formData.append("files", file)
+          formData.append("files", file);
         }
 
         console.log(axios);
-
         (async () => {
           try {
+
+
             const resp = await axios.post('/uploadAjax', formData, {
               headers: {
                 'content-type': 'multipart/form-data'
               }
             });
             console.log("업로드 완료")
-            console.log(resp.data)  // 여기까지가 성공원하는
-            document.querySelector(".uploadResult").innerHTML += resp.data.map(ele =>
-              `<li data-uuid="${ele.uuid}" data-origin="${ele.origin}" data-path="${ele.path}">
-              <img src="/display${ele.thumb}" alt="${ele.origin}"><button class="btn"><i class="fa-solid fa-x"></i></button></li>`  /*이게 문자열로 만드는*/
-            ).join("");
+            console.log(resp.data);
+            document.querySelector(".upload-list").innerHTML += resp.data.map(ele =>`
+                <li data-uuid="${ele.uuid}"data-origin="${ele.origin}"data-path="${ele.path}">
+                  <img src="/display${ele.thumb}" alt="${ele.origin}"><button class="btn"><i class="ta-solid ta-x"></i></button>
+                </li>
+            `).join("");
+
 
           } catch (error) {
             console.log(error);
-            if(error.response) {
+            if (error.response) {
               const status = error.response.status;
-              if(status === 400) {
+              if (status === 400) {
                 alert(error.response.data);
-              }
-              else if (status === 500) {
+              } else if (status === 500) {
                 alert("서버 오류가 발생했습니다")
               }
             }
@@ -93,6 +96,10 @@
               alert("알수없는 오류");
             }
           }
+
+
+
+
         })();
       })
     </script>

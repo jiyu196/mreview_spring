@@ -19,5 +19,5 @@ public class MovieImage {
   @ManyToOne(fetch = FetchType.LAZY)
 //  @Setter
   private Movie movie;
-  private boolean present;
+//  private boolean present;
 }
